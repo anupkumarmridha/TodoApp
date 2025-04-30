@@ -1,6 +1,6 @@
 package com.example.todoapp.redux
 
-import com.example.todoapp.data.model.DeletedTodoResponse
+import com.example.todoapp.data.model.DeleteResponse
 import com.example.todoapp.data.model.Todo
 
 sealed class Action {
@@ -9,5 +9,5 @@ sealed class Action {
     data class LoadError(val message: String) : Action()
     data class AddTodoSuccess(val todo: Todo) : Action()
     data class UpdateTodoSuccess(val todo: Todo) : Action()
-    data class DeleteTodoSuccess(val response: DeletedTodoResponse) : Action()
+    data class DeleteTodoSuccess(val response: DeleteResponse) : Action()
 }

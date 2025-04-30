@@ -14,18 +14,25 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
+
+    val BASE_URL = "http://10.0.2.2:8000/"
+
     @Provides @Singleton
-    fun provideRetrofit(): Retrofit =
-        Retrofit.Builder()
-            .baseUrl("https://dummyjson.com/")
+    fun provideRetrofit(): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+    }
 
     @Provides @Singleton
-    fun provideTodoApi(retrofit: Retrofit): TodoApi =
-        retrofit.create(TodoApi::class.java)
+    fun provideTodoApi(retrofit: Retrofit): TodoApi {
+        return retrofit.create(TodoApi::class.java)
+    }
 
     @Provides @Singleton
-    fun provideTodoRepository(api: TodoApi): ITodoRepository =
-        TodoRepository(api)
+    fun provideTodoRepository(api: TodoApi): ITodoRepository {
+        return TodoRepository(api)
+    }
+
 }

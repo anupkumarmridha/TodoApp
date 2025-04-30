@@ -1,11 +1,14 @@
 package com.example.todoapp.data.repository
 
-import com.example.todoapp.data.model.DeletedTodoResponse
+import com.example.todoapp.data.model.CreateTodoRequest
 import com.example.todoapp.data.model.Todo
+import com.example.todoapp.data.model.UpdateTodoRequest
+
 
 interface ITodoRepository {
-    suspend fun fetchTodos(limit: Int? = null, skip: Int? = null): List<Todo>
-    suspend fun addTodo(text: String, userId: Int): Todo
-    suspend fun updateTodo(id: Int, completed: Boolean): Todo
-    suspend fun deleteTodo(id: Int): DeletedTodoResponse
+    suspend fun getAllTodos(): Result<List<Todo>>
+    suspend fun getTodoById(id: String): Result<Todo>
+    suspend fun createTodo(todo: CreateTodoRequest): Result<Todo>
+    suspend fun updateTodo(id: String, todo: UpdateTodoRequest): Result<Todo>
+    suspend fun deleteTodo(id: String): Result<Boolean>
 }

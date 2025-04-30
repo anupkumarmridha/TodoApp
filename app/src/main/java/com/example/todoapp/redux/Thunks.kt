@@ -1,5 +1,10 @@
 package com.example.todoapp.redux
 
+import android.util.Log
+import com.example.todoapp.data.model.CreateTodoRequest
+import com.example.todoapp.data.model.DeleteResponse
+import com.example.todoapp.data.model.Priority
+import com.example.todoapp.data.model.UpdateTodoRequest
 import com.example.todoapp.data.repository.ITodoRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,55 +20,60 @@ class TodoThunks(
     // A dedicated scope for I/O–bound work
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    /** Fetch all todos, dispatching LoadTodos → TodosLoaded / LoadError */
-    fun fetchTodos(limit: Int? = null, skip: Int? = null): Thunk<AppState> = { dispatch, _, _ ->
+    fun fetchTodos(): Thunk<AppState> = { dispatch, _, _ ->
         dispatch(Action.LoadTodos)
         scope.launch {
-            try {
-                val todos = repository.fetchTodos(limit, skip)
-                dispatch(Action.TodosLoaded(todos))
-            } catch (e: Exception) {
-                dispatch(Action.LoadError(e.localizedMessage ?: "Fetch failed"))
-            }
+            repository.getAllTodos()
+                .onSuccess { todos ->
+                    Log.d("TodoThunks", "Todos fetched: $todos")
+                    dispatch(Action.TodosLoaded(todos))
+                }
+                .onFailure { e ->
+                    dispatch(Action.LoadError(e.message ?: "Fetch failed"))
+                }
         }
     }
 
-    /** Create a new todo, dispatching LoadTodos → AddTodoSuccess / LoadError */
-    fun addTodo(text: String, userId: Int): Thunk<AppState> = { dispatch, _, _ ->
+    fun addTodo(title: String, description: String? = null, priority: Priority = Priority.MEDIUM): Thunk<AppState> = { dispatch, _, _ ->
         dispatch(Action.LoadTodos)
         scope.launch {
-            try {
-                val todo = repository.addTodo(text, userId)
-                dispatch(Action.AddTodoSuccess(todo))
-            } catch (e: Exception) {
-                dispatch(Action.LoadError(e.localizedMessage ?: "Add failed"))
-            }
+            val request = CreateTodoRequest(title, description, priority)
+            repository.createTodo(request)
+                .onSuccess { todo ->
+                    dispatch(Action.AddTodoSuccess(todo))
+                }
+                .onFailure { e ->
+                    dispatch(Action.LoadError(e.localizedMessage ?: "Add failed"))
+                }
         }
     }
 
-    /** Update an existing todo, dispatching LoadTodos → UpdateTodoSuccess / LoadError */
-    fun updateTodo(id: Int, completed: Boolean): Thunk<AppState> = { dispatch, _, _ ->
+    fun updateTodo(id: String, title: String? = null, description: String? = null,
+                   completed: Boolean? = null, priority: Priority? = null): Thunk<AppState> = { dispatch, _, _ ->
         dispatch(Action.LoadTodos)
         scope.launch {
-            try {
-                val todo = repository.updateTodo(id, completed)
-                dispatch(Action.UpdateTodoSuccess(todo))
-            } catch (e: Exception) {
-                dispatch(Action.LoadError(e.localizedMessage ?: "Update failed"))
-            }
+            val request = UpdateTodoRequest(title, description, completed, priority)
+            repository.updateTodo(id, request)
+                .onSuccess { todo ->
+                    dispatch(Action.UpdateTodoSuccess(todo))
+                }
+                .onFailure { e ->
+                    dispatch(Action.LoadError(e.localizedMessage ?: "Update failed"))
+                }
         }
     }
 
-    /** Delete a todo, dispatching LoadTodos → DeleteTodoSuccess / LoadError */
-    fun deleteTodo(id: Int): Thunk<AppState> = { dispatch, _, _ ->
+    fun deleteTodo(id: String): Thunk<AppState> = { dispatch, _, _ ->
         dispatch(Action.LoadTodos)
         scope.launch {
-            try {
-                val response = repository.deleteTodo(id)
-                dispatch(Action.DeleteTodoSuccess(response))
-            } catch (e: Exception) {
-                dispatch(Action.LoadError(e.localizedMessage ?: "Delete failed"))
-            }
+            repository.deleteTodo(id)
+                .onSuccess { success ->
+                    val response = DeleteResponse(id, "Todo removed")
+                    dispatch(Action.DeleteTodoSuccess(response))
+                }
+                .onFailure { e ->
+                    dispatch(Action.LoadError(e.localizedMessage ?: "Delete failed"))
+                }
         }
     }
 }

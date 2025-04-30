@@ -1,42 +1,43 @@
 package com.example.todoapp.data.model
 
-import kotlinx.serialization.Serializable
+import com.google.gson.annotations.SerializedName
 
-// Matches DummyJSON /todos response
-@Serializable
 data class Todo(
-    val id: Int,
-    val todo: String,
-    val completed: Boolean,
-    val userId: Int
+    @SerializedName("_id")
+    val id: String = "",
+    val title: String,
+    val description: String? = null,
+    val completed: Boolean = false,
+    val priority: Priority = Priority.MEDIUM,
+    val createdAt: String? = null,
+    val updatedAt: String? = null
 )
 
-@Serializable
-data class TodosResponse(
-    val todos: List<Todo>,
-    val total: Int,
-    val skip: Int,
-    val limit: Int
+enum class Priority {
+    @SerializedName("low") LOW,
+    @SerializedName("medium") MEDIUM,
+    @SerializedName("high") HIGH
+}
+
+data class CreateTodoRequest(
+    val title: String,
+    val description: String? = null,
+    val priority: Priority = Priority.MEDIUM
 )
 
-@Serializable
-data class TodoRequest(
-    val todo: String,
-    val completed: Boolean,
-    val userId: Int
+data class UpdateTodoRequest(
+    val title: String? = null,
+    val description: String? = null,
+    val completed: Boolean? = null,
+    val priority: Priority? = null
 )
 
-@Serializable
-data class TodoUpdate(
-    val completed: Boolean
+data class ErrorResponse(
+    val message: String
 )
 
-@Serializable
-data class DeletedTodoResponse(
-    val id: Int,
-    val todo: String,
-    val completed: Boolean,
-    val userId: Int,
-    val isDeleted: Boolean,
-    val deletedOn: String
+data class DeleteResponse(
+    @SerializedName("_id")
+    val id: String,
+    val message: String
 )

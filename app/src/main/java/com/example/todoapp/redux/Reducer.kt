@@ -12,15 +12,15 @@ fun appReducer(state: AppState, action: Any): AppState =
             state.copy(isLoading = false, error = action.message)
 
         is Action.AddTodoSuccess ->
-            state.copy(todos = listOf(action.todo) + state.todos)
+            state.copy(todos = listOf(action.todo) + state.todos, isLoading = false)
 
         is Action.UpdateTodoSuccess ->
             state.copy(todos = state.todos.map {
                 if (it.id == action.todo.id) action.todo else it
-            })
+            }, isLoading = false)
 
         is Action.DeleteTodoSuccess ->
-            state.copy(todos = state.todos.filter { it.id != action.response.id })
+            state.copy(todos = state.todos.filter { it.id != action.response.id }, isLoading = false)
 
         else -> state
     }

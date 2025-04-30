@@ -1,6 +1,9 @@
 package com.example.todoapp.ui.feature.Todo
 
 import androidx.lifecycle.ViewModel
+import com.example.todoapp.data.model.CreateTodoRequest
+import com.example.todoapp.data.model.Priority
+import com.example.todoapp.data.model.UpdateTodoRequest
 import com.example.todoapp.data.repository.ITodoRepository
 import com.example.todoapp.redux.AppState
 import com.example.todoapp.redux.appReducer
@@ -49,19 +52,25 @@ class TodoViewModel @Inject constructor(
     }
 
     // Expose simple methods that dispatch thunks
-    fun loadTodos(limit: Int? = null, skip: Int? = null) {
-        store.dispatch(thunks.fetchTodos(limit, skip))
+    fun loadTodos() {
+        store.dispatch(thunks.fetchTodos())
     }
 
-    fun addTodo(text: String, userId: Int) {
-        store.dispatch(thunks.addTodo(text, userId))
+    fun addTodo(title: String, description: String? = null, priority: Priority = Priority.MEDIUM) {
+        store.dispatch(thunks.addTodo(title, description, priority))
     }
 
-    fun updateTodo(id: Int, completed: Boolean) {
-        store.dispatch(thunks.updateTodo(id, completed))
+    fun updateTodo(
+        id: String,
+        title: String? = null,
+        description: String? = null,
+        completed: Boolean? = null,
+        priority: Priority? = null
+    ) {
+        store.dispatch(thunks.updateTodo(id, title, description, completed, priority))
     }
 
-    fun deleteTodo(id: Int) {
+    fun deleteTodo(id: String) {
         store.dispatch(thunks.deleteTodo(id))
     }
 }
